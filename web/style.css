@@ -55,6 +55,12 @@ code,.mono{font-family:ui-monospace,SFMono-Regular,monospace;overflow-wrap:anywh
 footer{border-top:1px solid var(--rule);padding:1.1rem 0;color:var(--muted);font-size:.85rem}
 footer .site{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
 footer a{color:#254535}
+.origin-matches{margin-block:1.2rem}
+.match-list{display:grid;gap:.55rem;list-style:none;padding:0;margin:.55rem 0}
+.match-list .record{display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap}
+.match-list h3{margin:0}
+.match-list p{margin:.25rem 0 0}
+.match-list button{flex:none}
 .empty{padding:1rem;border:1px dashed var(--rule);border-radius:.45rem;margin-block:1rem;color:var(--muted)}
 @media(max-width:34rem){.site{width:calc(100% - 1.3rem)}.search-row{grid-template-columns:1fr}.search-row .primary{justify-self:start}.masthead .site{min-height:3.4rem}main{padding-top:1rem}}
 .summary{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}

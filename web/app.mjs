@@ -1,4 +1,4 @@
-import { api, archiveObject, displayDate, officialOrigin, originCandidates, originEndpoint, validHash, visitRows } from "./model.mjs";
+import { api, archive, archiveObject, displayDate, looksLikeOrigin, nameEndpoint, nameRows, officialOrigin, originCandidates, originEndpoint, validHash, visitRows } from "./model.mjs";
 
 const get = id => document.getElementById(id);
 const query = get("query");
@@ -7,6 +7,7 @@ const status = get("status");
 const older = get("older");
 const visitsList = get("visits");
 const inspector = get("snapshot");
+const matches = get("matches");
 const pageSize = 12;
 const maxVisits = 120;
 let origin = "";
@@ -68,6 +69,61 @@ function errorText(error) {
   return error.message;
 }
 
+function beginLookup(keepMatches) {
+  primaryRun?.abort();
+  snapshotsRun?.abort();
+  primaryRun = new AbortController();
+  get("lookup-form").setAttribute("aria-busy", "true");
+  results.hidden = true;
+  if (!keepMatches) matches.hidden = true;
+  return primaryRun;
+}
+
+function endLookup(run) {
+  if (run === primaryRun) get("lookup-form").removeAttribute("aria-busy");
+}
+
+function lookup(raw) {
+  const value = raw.trim();
+  if (looksLikeOrigin(value)) find(value);
+  else findByName(value);
+}
+
+async function findByName(value) {
+  const run = beginLookup(false);
+  let destination;
+  setStatus("Searching names and paths in Software Heritage…");
+  try {
+    const endpoint = nameEndpoint(value);
+    destination = archive + "/browse/search/?" + new URLSearchParams({ q: value });
+    history.replaceState(null, "", "#name=" + encodeURIComponent(value));
+    const hits = nameRows(await json(endpoint, run.signal));
+    if (run !== primaryRun) return;
+    const list = get("match-list");
+    list.replaceChildren();
+    for (const hit of hits) {
+      const row = element("li", undefined, "record");
+      const summary = element("div");
+      summary.append(element("h3", hit.url, "mono"));
+      if (hit.last_visit_date) summary.append(element("p", "Last visit " + displayDate(hit.last_visit_date), "fine"));
+      row.append(summary, button("View archive visits", () => {
+        query.value = hit.url;
+        find(hit.url, true);
+      }));
+      list.append(row);
+    }
+    get("official-name").href = destination;
+    matches.hidden = false;
+    setStatus(hits.length
+      ? "Showing " + hits.length + " matching origin" + (hits.length === 1 ? "." : "s.") + " Choose a repository to see its archive history."
+      : "No matching repository URLs were returned. Try a shorter name or a different part of the repository path.");
+  } catch (error) {
+    if (run !== primaryRun || run.signal.aborted) return;
+    setStatus(errorText(error), true);
+    if (destination) status.append(" ", link("Search the official archive ↗", destination));
+  } finally { endLookup(run); }
+}
+
 function renderVisits() {
   visitsList.replaceChildren();
   get("visit-count").textContent = visits.length ? visits.length + " shown" : "No visits";
@@ -90,18 +146,13 @@ function renderVisits() {
   older.hidden = !canLoad;
 }
 
-async function find(raw) {
-  let candidates;
-  try { candidates = originCandidates(raw); } catch (error) { setStatus(error.message, true); return; }
-  primaryRun?.abort();
-  snapshotsRun?.abort();
-  const run = new AbortController();
-  primaryRun = run;
-  get("lookup-form").setAttribute("aria-busy", "true");
-  results.hidden = true;
+async function find(raw, keepMatches = false) {
+  const run = beginLookup(keepMatches);
   setStatus("Looking up the repository in Software Heritage…");
   const paths = [];
   try {
+    const variants = originCandidates(raw);
+    const candidates = keepMatches ? [raw, ...variants.filter(candidate => candidate !== raw)] : variants;
     let rows;
     for (const candidate of candidates) {
       paths.push(candidate);
@@ -115,7 +166,7 @@ async function find(raw) {
       }
     }
     if (run !== primaryRun) return;
-    if (rows === undefined) throw new Error("No archive origin matched the URL. Check the repository path or search Software Heritage by project name.");
+    if (rows === undefined) throw new Error("No archive origin matched the URL. Check the repository path or search by project name.");
     visits = visitRows(rows);
     canLoad = visits.length === pageSize;
     get("origin-url").textContent = origin;
@@ -128,15 +179,14 @@ async function find(raw) {
       : "The visits shown have no linked snapshot. Check older visits or browse the archive’s origin page."));
     results.hidden = false;
     setStatus("Loaded the most recent visits returned by Software Heritage.");
+    if (keepMatches) results.scrollIntoView({ block: "start" });
   } catch (error) {
     if (run !== primaryRun || run.signal.aborted) return;
     setStatus(errorText(error), true);
     if (paths.length) {
       status.append(" ", link("Check the official archive ↗", officialOrigin(paths[0])));
     }
-  } finally {
-    if (run === primaryRun) get("lookup-form").removeAttribute("aria-busy");
-  }
+  } finally { endLookup(run); }
 }
 
 async function loadOlder() {
@@ -213,9 +263,9 @@ async function showSnapshot(id, from = "") {
   }
 }
 
-get("lookup-form").addEventListener("submit", event => { event.preventDefault(); find(query.value); });
-for (const preset of document.querySelectorAll("[data-origin]")) {
-  preset.addEventListener("click", () => { query.value = preset.dataset.origin; find(query.value); });
+get("lookup-form").addEventListener("submit", event => { event.preventDefault(); lookup(query.value); });
+for (const preset of document.querySelectorAll("[data-query]")) {
+  preset.addEventListener("click", () => { query.value = preset.dataset.query; lookup(query.value); });
 }
 older.addEventListener("click", loadOlder);
 get("share").addEventListener("click", async () => {
@@ -226,5 +276,8 @@ get("share").addEventListener("click", async () => {
     setStatus("Copy the lookup link from your browser’s address bar.");
   }
 });
-const initial = new URLSearchParams(location.hash.slice(1)).get("origin");
-if (initial && initial.length <= 400) { query.value = initial; find(initial); }
+const initial = new URLSearchParams(location.hash.slice(1));
+const initialOrigin = initial.get("origin");
+const initialName = initial.get("name");
+if (initialOrigin && initialOrigin.length <= 400) { query.value = initialOrigin; find(initialOrigin); }
+else if (initialName && initialName.length <= 120) { query.value = initialName; findByName(initialName); }

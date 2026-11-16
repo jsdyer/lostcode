@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Explore preserved visits, snapshots, and branches for a software repository in Software Heritage.">
+  <meta name="description" content="Find archived software projects by name or URL and explore their preserved visits, snapshots, and branches in Software Heritage.">
   <meta name="theme-color" content="#17201c">
   <title>Lost Code · CoolCode</title>
   <link rel="stylesheet" href="./style.css">
@@ -15,16 +15,16 @@
   <section class="hero" aria-labelledby="title"><div class="site">
     <p class="eyebrow">Software preservation</p>
     <h1 id="title">Lost Code</h1>
-    <p>Follow an old repository URL into Software Heritage. Find preserved snapshots, compare archive visits, and open source trees that may still survive.</p>
+    <p>Find an old software project in Software Heritage. Explore preserved snapshots, compare archive visits, and open source trees that may still survive.</p>
   </div></section>
   <main class="site" id="lookup">
     <section class="panel" aria-label="Repository lookup">
       <form id="lookup-form" role="search">
-        <label for="query">Repository URL</label>
-        <div class="search-row"><input type="search" id="query" required maxlength="400" autocomplete="off" spellcheck="false" placeholder="https://github.com/torvalds/linux"><button class="primary" type="submit">Look up archive</button></div>
-        <p class="fine">Use the original repository URL. For a project name, <a href="https://archive.softwareheritage.org/browse/search/" target="_blank" rel="noopener noreferrer">find its repository in Software Heritage ↗</a>.</p>
+        <label for="query">Project name or repository URL</label>
+        <div class="search-row"><input type="search" id="query" required maxlength="400" autocomplete="off" spellcheck="false" placeholder="mintchip or https://github.com/torvalds/linux"><button class="primary" type="submit">Look up archive</button></div>
+        <p class="fine">Paste an original URL to open its history. A name or partial path searches the archived repository URLs.</p>
       </form>
-      <div class="preset-bar" aria-label="Example repositories"><span>Try</span><button class="pill" type="button" data-origin="https://github.com/torvalds/linux">Linux</button><button class="pill" type="button" data-origin="https://github.com/php/php-src">PHP source</button><button class="pill" type="button" data-origin="https://github.com/id-Software/DOOM">DOOM source</button></div>
+      <div class="preset-bar" aria-label="Example searches"><span>Try</span><button class="pill" type="button" data-query="https://github.com/torvalds/linux">Linux</button><button class="pill" type="button" data-query="https://github.com/php/php-src">PHP source</button><button class="pill" type="button" data-query="https://github.com/id-Software/DOOM">DOOM source</button><button class="pill" type="button" data-query="mintchip">MintChip by name</button></div>
     </section>
     <p id="status" class="status" role="status" aria-live="polite">An archive visit records what Software Heritage observed at that time.</p>
     <section id="results" hidden aria-labelledby="results-title">
@@ -44,11 +44,15 @@
         </section>
       </div>
     </section>
+    <section id="matches" class="origin-matches" hidden aria-labelledby="match-heading">
+      <div class="results-head"><h2 id="match-heading">Matching repository URLs</h2><a id="official-name" target="_blank" rel="noopener noreferrer">Full search at Software Heritage ↗</a></div>
+      <ul id="match-list" class="match-list"></ul>
+    </section>
     <noscript><p class="empty">Turn on JavaScript to run the lookup, or open <a href="https://archive.softwareheritage.org/browse/search/">Software Heritage</a> directly.</p></noscript>
     <aside class="panel source" id="sources" aria-labelledby="source-heading">
       <h2 id="source-heading">Reading the archive</h2>
       <p>Visits are crawl observations. A successful visit can point to a previously seen snapshot; a partial visit may capture fewer references. Archive timestamps and commit dates answer different questions.</p>
-      <p>The lookup sends the repository URL to <a href="https://www.softwareheritage.org/">Software Heritage</a> and reads its live <a href="https://archive.softwareheritage.org/api/1/">public API</a>. Its <a href="https://www.softwareheritage.org/software-heritage-faq/">coverage and collection notes</a> explain why a missing result leaves open the possibility of other copies.</p>
+      <p>The lookup sends your search to <a href="https://www.softwareheritage.org/">Software Heritage</a> and reads its live <a href="https://archive.softwareheritage.org/api/1/">public API</a>. Its <a href="https://www.softwareheritage.org/software-heritage-faq/">coverage and collection notes</a> explain why a missing result leaves open the possibility of other copies.</p>
     </aside>
   </main>
   <footer><div class="site"><a href="https://coolcode.ca/">CoolCode.ca</a><a href="https://github.com/jsdyer/lostcode">Application source on GitHub ↗</a></div></footer>

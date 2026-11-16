@@ -3,6 +3,25 @@ export const api = archive + "/api/1/";
 
 const providers = new Set(["github.com", "codeberg.org", "bitbucket.org"]);
 
+export function looksLikeOrigin(value) {
+  return /^[a-z][a-z\d+.-]*:|^[^\s/]+\.[^\s/]+\//i.test(value);
+}
+
+export function nameEndpoint(value) {
+  if (value.length < 2 || value.length > 120 || !/[\p{L}\p{N}]/u.test(value)) {
+    throw new Error("Enter 2 to 120 characters from a project name or repository path.");
+  }
+  return api + "origin/search/" + encodeURIComponent(value) + "/?limit=8";
+}
+
+export function nameRows(data) {
+  if (!Array.isArray(data)) throw new Error("Software Heritage returned an unexpected search response.");
+  return data.filter(row => {
+    if (typeof row?.url !== "string" || !/^https?:\/\//i.test(row.url)) return false;
+    try { return originCandidates(row.url).length > 0; } catch { return false; }
+  });
+}
+
 export function originCandidates(raw) {
   const input = raw.trim();
   if (!input) throw new Error("Enter the original repository URL.");
