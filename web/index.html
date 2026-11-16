@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore preserved visits, snapshots, and branches for a software repository in Software Heritage.">
+  <meta name="theme-color" content="#17201c">
+  <title>Lost Code · CoolCode</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+  <a class="skip" href="#lookup">Skip to repository lookup</a>
+  <header class="masthead"><div class="site"><a class="brand" href="https://coolcode.ca/"><span aria-hidden="true">[cc]</span>CoolCode.ca</a><nav aria-label="Help"><a href="#sources">How the archive works</a></nav></div></header>
+  <section class="hero" aria-labelledby="title"><div class="site">
+    <p class="eyebrow">Software preservation</p>
+    <h1 id="title">Lost Code</h1>
+    <p>Follow an old repository URL into Software Heritage. Find preserved snapshots, compare archive visits, and open source trees that may still survive.</p>
+  </div></section>
+  <main class="site" id="lookup">
+    <section class="panel" aria-label="Repository lookup">
+      <form id="lookup-form" role="search">
+        <label for="query">Repository URL</label>
+        <div class="search-row"><input type="search" id="query" required maxlength="400" autocomplete="off" spellcheck="false" placeholder="https://github.com/torvalds/linux"><button class="primary" type="submit">Look up archive</button></div>
+        <p class="fine">Use the original repository URL. For a project name, <a href="https://archive.softwareheritage.org/browse/search/" target="_blank" rel="noopener noreferrer">find its repository in Software Heritage ↗</a>.</p>
+      </form>
+      <div class="preset-bar" aria-label="Example repositories"><span>Try</span><button class="pill" type="button" data-origin="https://github.com/torvalds/linux">Linux</button><button class="pill" type="button" data-origin="https://github.com/php/php-src">PHP source</button><button class="pill" type="button" data-origin="https://github.com/id-Software/DOOM">DOOM source</button></div>
+    </section>
+    <p id="status" class="status" role="status" aria-live="polite">An archive visit records what Software Heritage observed at that time.</p>
+    <section id="results" hidden aria-labelledby="results-title">
+      <div class="panel summary">
+        <div><p class="eyebrow">Archived origin</p><h2 id="results-title">Repository</h2><p id="origin-url" class="mono fine"></p></div>
+        <div class="actions"><a id="origin-link" class="secondary" target="_blank" rel="noopener noreferrer">Official origin ↗</a><button id="share" class="secondary" type="button">Copy lookup link</button></div>
+      </div>
+      <div class="columns">
+        <section aria-labelledby="visit-heading">
+          <div class="results-head"><h2 id="visit-heading">Archive visits</h2><p id="visit-count" class="fine"></p></div>
+          <ol id="visits" class="timeline"></ol>
+          <button class="secondary" id="older" type="button" hidden>Load older visits</button>
+        </section>
+        <section aria-labelledby="snapshot-heading">
+          <h2 id="snapshot-heading">Snapshot inspector</h2>
+          <div id="snapshot" class="panel snapshot" role="region" aria-live="polite" aria-label="Snapshot details"></div>
+        </section>
+      </div>
+    </section>
+    <noscript><p class="empty">Turn on JavaScript to run the lookup, or open <a href="https://archive.softwareheritage.org/browse/search/">Software Heritage</a> directly.</p></noscript>
+    <aside class="panel source" id="sources" aria-labelledby="source-heading">
+      <h2 id="source-heading">Reading the archive</h2>
+      <p>Visits are crawl observations. A successful visit can point to a previously seen snapshot; a partial visit may capture fewer references. Archive timestamps and commit dates answer different questions.</p>
+      <p>The lookup sends the repository URL to <a href="https://www.softwareheritage.org/">Software Heritage</a> and reads its live <a href="https://archive.softwareheritage.org/api/1/">public API</a>. Its <a href="https://www.softwareheritage.org/software-heritage-faq/">coverage and collection notes</a> explain why a missing result leaves open the possibility of other copies.</p>
+    </aside>
+  </main>
+  <footer><div class="site"><a href="https://coolcode.ca/">CoolCode.ca</a><a href="https://github.com/jsdyer/lostcode">Application source on GitHub ↗</a></div></footer>
+</body>
+</html>
